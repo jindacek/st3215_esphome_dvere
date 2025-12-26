@@ -14,7 +14,7 @@ static constexpr int   SPEED_MIN     = 100;
 static constexpr int   ACCEL_RATE    = 75;     // změna rychlosti za krok
 static constexpr uint32_t RAMP_DT_MS = 30;     // perioda rampy
 static constexpr float DECEL_ZONE    = 0.90f;  // kdy začít brzdit (otáčky před koncem)
-static constexpr float STOP_EPS      = 0.03f;  // hystereze koncáku
+static constexpr float STOP_EPS      = 0.01f;  // hystereze koncáku
 static constexpr int POSITION_SPEED = 1300;   // rychlost slideru
 
 // ================= TORQUE SWITCH =================
