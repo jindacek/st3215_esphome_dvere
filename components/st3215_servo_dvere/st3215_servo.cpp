@@ -1,6 +1,7 @@
 #include "st3215_servo.h"
 #include "esphome/core/log.h"
 #include "esphome/core/preferences.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
 #include <cmath>
 
 namespace esphome {
