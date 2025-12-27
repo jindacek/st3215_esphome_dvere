@@ -538,7 +538,12 @@ void St3215Servo::set_torque(bool on) {
   send_packet_(servo_id_, 0x03, {0x28, static_cast<uint8_t>(on ? 0x01 : 0x00)});
 
   torque_on_ = on;
-  if (torque_switch_) torque_switch_->publish_state(on);
+
+  if (torque_switch_)
+    torque_switch_->publish_state(on);
+
+  if (torque_state_sensor_)
+    torque_state_sensor_->publish_state(on);
 }
 
 void St3215Servo::set_torque_from_switch(bool on) {
