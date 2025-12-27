@@ -2,6 +2,8 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import uart, sensor, switch
 from esphome.const import CONF_ID, CONF_UART_ID, UNIT_DEGREES, UNIT_PERCENT
+from esphome.components import binary_sensor
+
 
 DEPENDENCIES = ["uart", "sensor", "switch"]
 AUTO_LOAD = ["switch"]
@@ -10,7 +12,7 @@ st3215_ns = cg.esphome_ns.namespace("st3215_servo")
 St3215Servo = st3215_ns.class_("St3215Servo", cg.Component, uart.UARTDevice)
 St3215TorqueSwitch = st3215_ns.class_("St3215TorqueSwitch", switch.Switch, cg.Component)
 St3215AutoUnlockSwitch = st3215_ns.class_("St3215AutoUnlockSwitch", switch.Switch, cg.Component)
-
+St3215TorqueStateBinarySensor = st3215_ns.class_("St3215TorqueStateBinarySensor", binary_sensor.BinarySensor, cg.Component)
 
 CONF_SERVO_ID = "servo_id"
 CONF_TURNS_FULL_OPEN = "turns_full_open"
@@ -39,6 +41,7 @@ _SERVO_SCHEMA = cv.Schema(
         cv.Optional("calib_state"): sensor.sensor_schema(),
         cv.Optional(CONF_TORQUE_SWITCH): switch.switch_schema(St3215TorqueSwitch),
         cv.Optional(CONF_AUTO_UNLOCK_SWITCH): switch.switch_schema(St3215AutoUnlockSwitch),
+        cv.Optional("torque_state"): binary_sensor.binary_sensor_schema(device_class="lock"),
     }
 ).extend(uart.UART_DEVICE_SCHEMA)
 
@@ -86,3 +89,7 @@ async def to_code(config):
             await cg.register_component(sw2, conf[CONF_AUTO_UNLOCK_SWITCH])
             cg.add(sw2.set_parent(var))
             cg.add(var.set_auto_unlock_switch(sw2))
+        if "torque_state" in conf:
+            sens = await binary_sensor.new_binary_sensor(conf["torque_state"])
+            await cg.register_component(sens, conf["torque_state"])
+            cg.add(var.set_torque_state_sensor(sens))
