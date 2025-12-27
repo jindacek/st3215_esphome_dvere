@@ -9,11 +9,15 @@ AUTO_LOAD = ["switch"]
 st3215_ns = cg.esphome_ns.namespace("st3215_servo")
 St3215Servo = st3215_ns.class_("St3215Servo", cg.Component, uart.UARTDevice)
 St3215TorqueSwitch = st3215_ns.class_("St3215TorqueSwitch", switch.Switch, cg.Component)
+St3215AutoUnlockSwitch = st3215_ns.class_("St3215AutoUnlockSwitch", switch.Switch, cg.Component)
+
 
 CONF_SERVO_ID = "servo_id"
 CONF_TURNS_FULL_OPEN = "turns_full_open"
 CONF_MAX_ANGLE = "max_angle"
 CONF_TORQUE_SWITCH = "torque_switch"
+CONF_AUTO_UNLOCK_SWITCH = "auto_unlock_switch"
+
 
 # 👉 NOVÉ:
 CONF_INVERT_DIRECTION = "invert_direction"
@@ -34,6 +38,7 @@ _SERVO_SCHEMA = cv.Schema(
         cv.Optional("percent"): sensor.sensor_schema(unit_of_measurement=UNIT_PERCENT),
         cv.Optional("calib_state"): sensor.sensor_schema(),
         cv.Optional(CONF_TORQUE_SWITCH): switch.switch_schema(St3215TorqueSwitch),
+        cv.Optional(CONF_AUTO_UNLOCK_SWITCH): switch.switch_schema(St3215AutoUnlockSwitch),
     }
 ).extend(uart.UART_DEVICE_SCHEMA)
 
@@ -76,3 +81,8 @@ async def to_code(config):
             await cg.register_component(sw, conf[CONF_TORQUE_SWITCH])
             cg.add(sw.set_parent(var))
             cg.add(var.set_torque_switch(sw))
+        if CONF_AUTO_UNLOCK_SWITCH in conf:
+            sw2 = await switch.new_switch(conf[CONF_AUTO_UNLOCK_SWITCH])
+            await cg.register_component(sw2, conf[CONF_AUTO_UNLOCK_SWITCH])
+            cg.add(sw2.set_parent(var))
+            cg.add(var.set_auto_unlock_switch(sw2))
