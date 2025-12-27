@@ -6,7 +6,7 @@ from esphome.components import binary_sensor
 
 
 DEPENDENCIES = ["uart", "sensor", "switch", "binary_sensor"]
-AUTO_LOAD = ["switch"]
+AUTO_LOAD = ["switch", "binary_sensor"]
 
 st3215_ns = cg.esphome_ns.namespace("st3215_servo")
 St3215Servo = st3215_ns.class_("St3215Servo", cg.Component, uart.UARTDevice)
