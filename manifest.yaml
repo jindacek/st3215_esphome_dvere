@@ -15,6 +15,7 @@ dependencies:
       - sensor
       - number
       - text_sensor
+      - binary_sensor
     excludes:
       - button
 
