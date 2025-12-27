@@ -19,7 +19,13 @@ static constexpr int POSITION_SPEED = 1300;   // rychlost slideru
 
 // ================= TORQUE SWITCH =================
 void St3215TorqueSwitch::write_state(bool state) {
-  if (parent_) parent_->set_torque(state);
+  if (parent_) parent_->set_torque_from_switch(state);
+  publish_state(state);
+}
+
+// ================= AUTO UNLOCK SWITCH =================
+void St3215AutoUnlockSwitch::write_state(bool state) {
+  if (parent_) parent_->set_auto_unlock_from_switch(state);
   publish_state(state);
 }
 
@@ -197,7 +203,7 @@ void St3215Servo::setup() {
   // Zapnutí krouticího momentu (torque ON)
   send_packet_(servo_id_, 0x03, {0x28, 0x01});
 
-  torque_on_ = true;
+  torque_on_ = false;
 
   // Zkusíme načíst kalibraci + polohu z flash
   bool loaded = this->load_calibration_();
@@ -534,6 +540,17 @@ void St3215Servo::set_torque(bool on) {
   if (torque_switch_) torque_switch_->publish_state(on);
 }
 
+void St3215Servo::set_torque_from_switch(bool on) {
+  // uživatel ručně přepnul torque
+  manual_torque_override_ = on;
+  set_torque(on);
+}
+
+void St3215Servo::set_auto_unlock_from_switch(bool on) {
+  auto_unlock_ = on;
+  // jen uložíme stav; nic dalšího neděláme
+}
+
 // ================= STOP =================
 void St3215Servo::stop() {
   target_speed_ = 0;
@@ -563,6 +580,11 @@ void St3215Servo::stop() {
     save_calibration_();
   }
 
+  // Auto odblokování: po STOP vypnout torque
+  if (auto_unlock_ && !manual_torque_override_) {
+    set_torque(false);
+  }
+
   // Uložíme i aktuální ramp_factor_ (nezávisle na kalibraci)
   // {
     // const uint32_t rbase = 0x2000u + static_cast<uint32_t>(servo_id_) * 10u;
@@ -574,6 +596,10 @@ void St3215Servo::stop() {
 
 // ================= ROTATE =================
 void St3215Servo::rotate(bool cw, int speed) {
+  // při pohybu vždy zapnout torque (pokud uživatel torque nevypnul ručně, tak to není relevantní;
+  // ruční override je jen pro "drž ON", ne pro zákaz zapnutí při jízdě)
+  set_torque(true);
+
   // cw = logický směr DOLŮ (bez ohledu na mechaniku / invert_direction)
   moving_ = true;
   moving_cw_ = cw;
@@ -661,5 +687,11 @@ void St3215Servo::set_torque_switch(St3215TorqueSwitch *s) {
   torque_switch_->publish_state(torque_on_);
 }
 
+void St3215Servo::set_auto_unlock_switch(St3215AutoUnlockSwitch *s) {
+  auto_unlock_switch_ = s;
+  auto_unlock_switch_->set_parent(this);
+  auto_unlock_switch_->publish_state(auto_unlock_);
+}
+  
 }  // namespace st3215_servo
 }  // namespace esphome
