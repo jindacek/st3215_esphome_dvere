@@ -6,8 +6,14 @@
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/number/number.h"
 #include "esphome/core/helpers.h"
-#include "esphome/components/binary_sensor/binary_sensor.h"
 #include <vector>
+
+// 👉 forward declaration binary_sensor (BEZ include)
+namespace esphome {
+namespace binary_sensor {
+class BinarySensor;
+}
+}
 
 namespace esphome {
 namespace st3215_servo {
