@@ -63,6 +63,11 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   void dump_config() override;
   void update() override;
 
+  // Binary sensor – stav torque (LOCKED / UNLOCKED)
+  void set_torque_state_sensor(binary_sensor::BinarySensor *s) {
+    torque_state_sensor_ = s;
+  }
+
   // YAML settery
   void set_servo_id(uint8_t id) { servo_id_ = id; }
   void set_turns_full_open(float t) { max_turns_ = t; has_max_ = true; }
