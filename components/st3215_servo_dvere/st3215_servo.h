@@ -24,6 +24,15 @@ class St3215TorqueSwitch : public switch_::Switch, public Component {
   St3215Servo *parent_{nullptr};
 };
 
+// =================== Auto Unlock Switch ===================
+class St3215AutoUnlockSwitch : public switch_::Switch, public Component {
+ public:
+  void set_parent(St3215Servo *p) { parent_ = p; }
+  void write_state(bool state) override;
+ protected:
+  St3215Servo *parent_{nullptr};
+};
+
 // ====================== Kalibrační stav ========================
 enum CalibState {
   CALIB_IDLE = 0,
@@ -60,6 +69,12 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   void stop();
   void set_torque(bool on);
 
+  // voláno z torque_switch (ruční override)
+  void set_torque_from_switch(bool on);
+
+  // voláno z auto_unlock_switch
+  void set_auto_unlock_from_switch(bool on);
+
   // Rampa Factor
   void set_ramp_factor(float f) { ramp_factor_ = f; pending_ramp_save_ = true; }
 
@@ -79,6 +94,8 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   void set_torque_switch(St3215TorqueSwitch *s);
   void set_open_switch(switch_::Switch *s) { open_switch_ = s; }
   void set_close_switch(switch_::Switch *s) { close_switch_ = s; }
+  void set_auto_unlock_switch(St3215AutoUnlockSwitch *s);
+
 
   // ===== POSITION MODE (AUTOPILOT) =====
   void move_to_percent(float pct);
@@ -86,6 +103,9 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
  protected:
   uint8_t servo_id_{1};
   bool torque_on_{true};
+  bool manual_torque_override_{false};   // true pokud uživatel drží torque přes torque_switch
+  bool auto_unlock_{true};               // nový přepínač „automatické odblokování“
+
 
   // Inverze směru (true = prohodit CW/CCW na drátu, logika zůstává stejná)
   bool invert_direction_{false};
@@ -127,6 +147,8 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   sensor::Sensor *calib_state_sensor_{nullptr};
 
   St3215TorqueSwitch *torque_switch_{nullptr};
+  St3215AutoUnlockSwitch *auto_unlock_switch_{nullptr};
+
 
   // Stav pohybu pro SW koncáky (logický směr: CW = DOLŮ, CCW = NAHORU)
   bool moving_{false};
