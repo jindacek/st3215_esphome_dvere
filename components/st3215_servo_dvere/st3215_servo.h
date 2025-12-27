@@ -118,6 +118,8 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   bool manual_torque_override_{false};   // true pokud uživatel drží torque přes torque_switch
   bool auto_unlock_{true};               // pokud true, torque se po stop() automaticky vypne
 
+  // Binární senzor TORQUE
+  binary_sensor::BinarySensor *torque_state_sensor_{nullptr};
 
   // Inverze směru (true = prohodit CW/CCW na drátu, logika zůstává stejná)
   bool invert_direction_{false};
