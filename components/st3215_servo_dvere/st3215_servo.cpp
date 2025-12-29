@@ -542,6 +542,7 @@ void St3215Servo::set_torque(bool on) {
   if (torque_switch_)
     torque_switch_->publish_state(on);
 
+  // ⬅️ INVERTOVANÝ STAV PRO ZÁMEK  
   if (torque_state_sensor_)
     torque_state_sensor_->publish_state(!on);
 }
