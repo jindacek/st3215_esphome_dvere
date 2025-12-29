@@ -226,11 +226,11 @@ void St3215Servo::setup() {
   if (!has_zero_ || !has_max_) {
     update_calib_state_(CALIB_IDLE);
     ESP_LOGI(TAG, loaded
-                 ? "Stored calibration incomplete – Nutná kalibrace rolety"
-                 : "Nutná kalibrace rolety");
+                 ? "Stored calibration incomplete – Nutná kalibrace dveří"
+                 : "Nutná kalibrace dveří");
   } else {
     update_calib_state_(CALIB_DONE);
-    ESP_LOGI(TAG, "Roleta připravena (max_turns=%.2f)", max_turns_);
+    ESP_LOGI(TAG, "Dveře připraveny (max_turns=%.2f)", max_turns_);
   }
 }
 
