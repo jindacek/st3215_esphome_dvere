@@ -543,7 +543,7 @@ void St3215Servo::set_torque(bool on) {
     torque_switch_->publish_state(on);
 
   if (torque_state_sensor_)
-    torque_state_sensor_->publish_state(on);
+    torque_state_sensor_->publish_state(off);
 }
 
 void St3215Servo::set_torque_from_switch(bool on) {
