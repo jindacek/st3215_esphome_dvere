@@ -7,6 +7,8 @@
 #include "esphome/components/number/number.h"
 #include "esphome/core/helpers.h"
 #include <vector>
+#include "esphome/components/text_sensor/text_sensor.h"
+#include <string>
 
 // 👉 forward declaration binary_sensor (BEZ include)
 namespace esphome {
@@ -102,6 +104,9 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   void set_percent_sensor(sensor::Sensor *s) { percent_sensor_ = s; }
   void set_calib_state_sensor(sensor::Sensor *s) { calib_state_sensor_ = s; }
 
+  // Textový senzor stavu pohybu
+  void set_state_sensor(text_sensor::TextSensor *s) { state_sensor_ = s; }
+
   // Switch
   void set_torque_switch(St3215TorqueSwitch *s);
   void set_open_switch(switch_::Switch *s) { open_switch_ = s; }
@@ -163,6 +168,9 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   St3215TorqueSwitch *torque_switch_{nullptr};
   St3215AutoUnlockSwitch *auto_unlock_switch_{nullptr};
 
+  // Textový senzor stavu: "Otevírá se" / "Zavírá se" / "Stojí"
+  text_sensor::TextSensor *state_sensor_{nullptr};
+  std::string last_state_{};
 
   // Stav pohybu pro SW koncáky (logický směr: CW = DOLŮ, CCW = NAHORU)
   bool moving_{false};
@@ -193,6 +201,8 @@ class St3215Servo : public PollingComponent, public uart::UARTDevice {
   uint8_t checksum_(const uint8_t *data, size_t len);
   void send_packet_(uint8_t id, uint8_t cmd, const std::vector<uint8_t> &params);
   bool read_registers_(uint8_t id, uint8_t addr, uint8_t len, std::vector<uint8_t> &out);
+
+  void publish_state_(const std::string &s);
 
   void update_calib_state_(CalibState s);
 };
