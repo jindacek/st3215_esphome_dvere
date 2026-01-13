@@ -193,6 +193,14 @@ bool St3215Servo::read_registers_(uint8_t id, uint8_t addr, uint8_t len,
   return false;
 }
 
+// ================= STATE SENSOR =================
+void St3215Servo::publish_state_(const std::string &s) {
+  if (state_sensor_ == nullptr) return;
+  if (s == last_state_) return;
+  last_state_ = s;
+  state_sensor_->publish_state(s);
+}
+
 // ================= SETUP =================
 void St3215Servo::setup() {
   ESP_LOGI(TAG, "ST3215 init ID=%u invert=%d", servo_id_, invert_direction_);
@@ -579,6 +587,7 @@ void St3215Servo::stop() {
   send_packet_(servo_id_, 0x03, params);
 
   moving_ = false;
+  publish_state_("Stojí");
   if (open_switch_)  open_switch_->publish_state(false);
   if (close_switch_) close_switch_->publish_state(false);
 
@@ -610,6 +619,7 @@ void St3215Servo::rotate(bool cw, int speed) {
   // cw = logický směr DOLŮ (bez ohledu na mechaniku / invert_direction)
   moving_ = true;
   moving_cw_ = cw;
+  publish_state_(moving_cw_ ? "Zavírá se" : "Otevírá se");
 
   if (speed < 0) speed = -speed;
   if (speed > SPEED_MAX) speed = SPEED_MAX;
